@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lost &amp; Found Portal</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #fff;
+      --text: #1c2030;
+      --muted: #667;
+      --line: #e3e6ef;
+      --brand: #4f46e5;
+      --brandtxt: #fff;
+      --lost: #dc2626;
+      --lostbg: #fee2e2;
+      --found: #059669;
+      --foundbg: #d1fae5;
+      --warn: #b45309;
+      --warnbg: #fef3c7;
+      color-scheme: light
+    }
+
+    @media (prefers-color-scheme:dark) {
+      :root {
+        --bg: #12141c;
+        --card: #1c1f2b;
+        --text: #eceef6;
+        --muted: #a0a6bd;
+        --line: #2c3040;
+        --brand: #818cf8;
+        --brandtxt: #12141c;
+        --lost: #f87171;
+        --lostbg: #3b1d1f;
+        --found: #34d399;
+        --foundbg: #12332a;
+        --warn: #fbbf24;
+        --warnbg: #3a2e12;
+        color-scheme: dark
+      }
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--brand);
+      outline-offset: 2px
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin: 8px 0 0
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin: 20px 0 10px
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: .9rem;
+      margin: 2px 0 16px
+    }
+
+    .bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0 16px;
+      flex-wrap: wrap
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+      color: var(--text)
+    }
+
+    .tab,
+    .btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      padding: 9px 16px;
+      border-radius: 10px;
+      cursor: pointer
+    }
+
+    .tab.on,
+    .btn.primary {
+      background: var(--brand);
+      color: var(--brandtxt);
+      border-color: var(--brand);
+      font-weight: 600
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center
+    }
+
+    .stat b {
+      display: block;
+      font-size: 1.4rem
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: .8rem
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--card)
+    }
+
+    input[type=checkbox] {
+      width: auto
+    }
+
+    input:disabled {
+      opacity: .6
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px
+    }
+
+    .item {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px
+    }
+
+    .item.done {
+      opacity: .6
+    }
+
+    .item img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 10px;
+      cursor: pointer
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .ico {
+      font-size: 1.8rem
+    }
+
+    .badge {
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      background: var(--bg)
+    }
+
+    .badge.lost {
+      background: var(--lostbg);
+      color: var(--lost)
+    }
+
+    .badge.found {
+      background: var(--foundbg);
+      color: var(--found)
+    }
+
+    .badge.pending {
+      background: var(--warnbg);
+      color: var(--warn)
+    }
+
+    .item h3 {
+      margin: 0;
+      font-size: 1.05rem
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: .85rem
+    }
+
+    .desc {
+      font-size: .9rem;
+      margin: 2px 0
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      margin-top: auto;
+      padding-top: 8px;
+      flex-wrap: wrap
+    }
+
+    .actions .btn {
+      padding: 6px 11px;
+      font-size: .85rem
+    }
+
+    .contact {
+      font-size: .9rem;
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 8px;
+      word-break: break-word
+    }
+
+    form.card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px
+    }
+
+    .full {
+      grid-column: 1/-1
+    }
+
+    label {
+      font-size: .85rem;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px
+    }
+
+    .seg {
+      display: flex;
+      gap: 8px
+    }
+
+    .seg label {
+      flex: 1;
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer
+    }
+
+    .seg input {
+      display: none
+    }
+
+    .seg label:has(input:checked) {
+      border-color: var(--brand);
+      background: var(--bg);
+      color: var(--brand)
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 40px 0;
+      grid-column: 1/-1
+    }
+
+    .hide {
+      display: none !important
+    }
+
+    .note {
+      font-size: .8rem;
+      color: var(--muted)
+    }
+
+    .link {
+      color: var(--brand);
+      cursor: pointer;
+      background: none;
+      border: 0;
+      padding: 0;
+      text-decoration: underline;
+      font-size: inherit
+    }
+
+    .msg {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      max-width: 92vw;
+      padding: 10px 16px;
+      border-radius: 10px;
+      background: var(--foundbg);
+      color: var(--found);
+      box-shadow: 0 6px 20px #0003
+    }
+
+    .msg.err {
+      background: var(--lostbg);
+      color: var(--lost)
+    }
+
+    .narrow {
+      max-width: 420px
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 10
+    }
+
+    .sheet {
+      background: var(--card);
+      border-radius: 16px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .sheet img {
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border-radius: 12px
+    }
+
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px
+    }
+
+    .hero h2 {
+      font-size: 1.3rem;
+      margin: 0 0 4px
+    }
+
+    .cta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 14px 0
+    }
+
+    .cta .btn {
+      padding: 12px 18px;
+      font-weight: 600
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      font-size: .88rem;
+      color: var(--muted)
+    }
+
+    .steps b {
+      color: var(--text);
+      display: block
+    }
+
+    details {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 8px
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600
+    }
+
+    details p {
+      margin: 8px 0 2px;
+      color: var(--muted)
+    }
+
+    .match {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-top: 1px solid var(--line);
+      font-size: .9rem
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: .8rem;
+      text-align: center;
+      padding: 24px 0
+    }
+
+    /* login / sign up screen */
+    #auth {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px
+    }
+
+    .authcard {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px
+    }
+
+    .authcard h1 {
+      margin: 4px 0 0;
+      font-size: 1.5rem
+    }
+
+    .authcard form {
+      display: grid;
+      gap: 12px
+    }
+
+    .authcard .sub {
+      margin-bottom: 16px
+    }
+
+    .brand {
+      font-size: 2rem
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    .chk {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 400;
+      margin: 0
+    }
+
+    .rowb {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: .85rem
+    }
+
+    .center {
+      text-align: center;
+      margin: 14px 0 0
+    }
+
+    .adminonly .tab:not([data-v=admin]) {
+      display: none
+    }
+
+    @media(max-width:640px) {
+      .filters {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .filters input {
+        grid-column: 1/-1
+      }
+
+      form.card {
+        grid-template-columns: 1fr
+      }
+
+      .two {
+        grid-template-columns: 1fr
+      }
+
+      body {
+        padding-bottom: 76px
+      }
+
+      .tabs {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        padding: 8px;
+        gap: 4px;
+        background: var(--card);
+        border-top: 1px solid var(--line);
+        z-index: 5
+      }
+
+      .tab {
+        flex: 1;
+        padding: 10px 4px;
+        font-size: .8rem
+      }
+
+      .steps {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="msg" class="msg hide" role="status"></div>
+
+  <!-- ============ LOGIN / SIGN UP (first screen) ============ -->
+  <div id="auth" class="hide">
+    <div class="authcard">
+      <div class="brand">🔎</div>
+      <h1 id="aTitle">Welcome back</h1>
+      <p class="sub" id="aSub">Log in to report or find lost items.</p>
+
+      <div class="pane" id="p-login">
+        <form id="fLogin">
+          <div><label for="lEmail">Email</label><input id="lEmail" type="email" autocomplete="email" required></div>
+          <div><label for="lPw">Password</label><input id="lPw" type="password" autocomplete="current-password"
+              required></div>
+          <div class="rowb"><label class="chk"><input type="checkbox" data-show="lPw"> Show password</label><button
+              type="button" class="link" data-pane="forgot">Forgot password?</button></div>
+          <button class="btn primary" type="submit">Log in</button>
+        </form>
+        <p class="center note" style="font-size:.9rem">New here? <button class="link" data-pane="signup">Sign
+            up</button></p>
+      </div>
+
+      <div class="pane hide" id="p-signup">
+        <form id="fSign">
+          <div class="two">
+            <div><label for="sName">Full name *</label><input id="sName" maxlength="50" autocomplete="name" required>
+            </div>
+            <div><label for="sPhone">Phone</label><input id="sPhone" maxlength="20" autocomplete="tel"
+                placeholder="Optional"></div>
+          </div>
+          <div><label for="sEmail">Email *</label><input id="sEmail" type="email" autocomplete="email" required></div>
+          <div class="two">
+            <div><label for="sType">I am a *</label><select id="sType">
+                <option>Student</option>
+                <option>Staff</option>
+                <option>Public</option>
+              </select></div>
+            <div><label for="sDept">Department / class</label><input id="sDept" maxlength="60" placeholder="Optional">
+            </div>
+          </div>
+          <div class="two">
+            <div><label for="sPw">Password *</label><input id="sPw" type="password" minlength="6"
+                autocomplete="new-password" required></div>
+            <div><label for="sPw2">Confirm password *</label><input id="sPw2" type="password" minlength="6"
+                autocomplete="new-password" required></div>
+          </div>
+          <label class="chk"><input type="checkbox" data-show="sPw,sPw2"> Show passwords</label>
+          <div><label for="sQ">Security question (for password reset) *</label><select id="sQ"></select></div>
+          <div><label for="sA">Your answer *</label><input id="sA" maxlength="60" autocomplete="off" required></div>
+          <button class="btn primary" type="submit">Create account</button>
+        </form>
+        <p class="center note" style="font-size:.9rem">Already have an account? <button class="link"
+            data-pane="login">Log in</button></p>
+      </div>
+
+      <div class="pane hide" id="p-forgot">
+        <form id="fF1">
+          <div><label for="fEmail">Your registered email</label><input id="fEmail" type="email" required></div>
+          <button class="btn primary" type="submit">Next</button>
+        </form>
+        <form id="fF2" class="hide">
+          <p style="margin:0"><b id="fQ"></b></p>
+          <div><label for="fAns">Your answer</label><input id="fAns" autocomplete="off" required></div>
+          <div><label for="fNew">New password</label><input id="fNew" type="password" minlength="6"
+              autocomplete="new-password" required></div>
+          <label class="chk"><input type="checkbox" data-show="fNew"> Show password</label>
+          <button class="btn primary" type="submit">Reset password</button>
+        </form>
+        <p class="center"><button class="link" data-pane="login">← Back to log in</button></p>
+      </div>
+
+      <div class="pane hide" id="p-admin">
+        <form id="fAdm">
+          <div><label for="aPw">Admin password</label><input id="aPw" type="password" required></div><button
+            class="btn primary" type="submit">Admin login</button>
+        </form>
+        <p class="center"><button class="link" data-pane="login">← Back to log in</button></p>
+      </div>
+      <p class="center note"><button class="link" data-pane="admin">Admin login</button></p>
+    </div>
+  </div>
+
+  <!-- ============ MAIN APP (after login) ============ -->
+  <div id="app" class="hide">
+    <div class="wrap">
+      <div class="bar">
+        <div>
+          <h1>🔎 Lost &amp; Found Portal</h1>
+          <p class="sub">Report and find lost items on campus and in public places.</p>
+        </div>
+        <div class="note"><span id="who"></span> <button class="btn" id="logoutAll">Log out</button></div>
+      </div>
+      <div class="tabs">
+        <button class="tab on" data-v="browse">Browse items</button>
+        <button class="tab" data-v="report">+ Report an item</button>
+        <button class="tab" data-v="account">👤 Account</button>
+        <button class="tab" data-v="admin">🔐 Admin</button>
+      </div>
+
+      <section id="browse">
+        <div class="hero">
+          <h2>Lost something? Found something?</h2>
+          <p class="note" style="font-size:.95rem;margin:0">Post it here so the right person can find it. Free for
+            students and the public.</p>
+          <div class="cta"><button class="btn primary" data-report="lost">😟 I lost something</button><button
+              class="btn" data-report="found">🙌 I found something</button></div>
+          <div class="steps">
+            <div><b>1. Report</b>Add what, where and when, with a photo if you can.</div>
+            <div><b>2. Match</b>Search the list. We also suggest possible matches.</div>
+            <div><b>3. Connect</b>Tap “Show contact” on an item to get it back.</div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="sLost">0</b><span>Lost</span></div>
+          <div class="stat"><b id="sFound">0</b><span>Found</span></div>
+          <div class="stat"><b id="sRet">0</b><span>Returned</span></div>
+        </div>
+        <div class="filters">
+          <input id="q" aria-label="Search" placeholder="Search item, place, description…">
+          <select id="fType" aria-label="Type">
+            <option value="">All types</option>
+            <option value="lost">Lost</option>
+            <option value="found">Found</option>
+          </select>
+          <select id="fCat" aria-label="Category"></select>
+          <select id="fStat" aria-label="Status">
+            <option value="open">Open only</option>
+            <option value="all">All</option>
+            <option value="done">Returned</option>
+          </select>
+        </div>
+        <div class="grid" id="list"></div>
+        <h2>Help &amp; safety</h2>
+        <details>
+          <summary>Who can see my phone number or email?</summary>
+          <p>Only logged-in users, and only after they tap “Show contact” on an approved report.</p>
+        </details>
+        <details>
+          <summary>I found something. What should I do?</summary>
+          <p>Report it here, and if you can, also hand it to the security office or admin desk. Never post full ID, card
+            or account numbers.</p>
+        </details>
+        <details>
+          <summary>When will my report appear?</summary>
+          <p>After an admin approves it. Edits to a report are approved again too.</p>
+        </details>
+        <details>
+          <summary>How do I meet the owner safely?</summary>
+          <p>Meet in a busy public place such as the main gate or library desk. Ask them to describe something not in
+            the post (colour, stickers, what’s inside) before handing it over.</p>
+        </details>
+        <details>
+          <summary>I forgot my password.</summary>
+          <p>Log out, then tap “Forgot password?” on the login page and answer your security question.</p>
+        </details>
+        <details>
+          <summary>I got my item back. Now what?</summary>
+          <p>Open Account, find your report and tap “Mark returned” so others stop searching.</p>
+        </details>
+      </section>
+
+      <section id="report" class="hide">
+        <form id="form" class="card">
+          <div class="full">
+            <h2 id="fTitle" style="margin:0">Report an item</h2>
+          </div>
+          <div class="full"><label>I have…</label>
+            <div class="seg"><label><input type="radio" name="type" value="lost" checked>😟 Lost
+                something</label><label><input type="radio" name="type" value="found">🙌 Found something</label></div>
+          </div>
+          <div><label>Item name *</label><input name="title" required maxlength="60" placeholder="e.g. Black backpack">
+          </div>
+          <div><label>Category *</label><select name="category" id="cat" required></select></div>
+          <div><label>Where? *</label><input name="location" list="places" required maxlength="80"
+              placeholder="e.g. Library, 2nd floor"><datalist id="places">
+              <option>Library</option>
+              <option>Canteen</option>
+              <option>Main gate</option>
+              <option>Bus stand</option>
+              <option>Hostel</option>
+              <option>Auditorium</option>
+              <option>Parking</option>
+              <option>Playground</option>
+              <option>Lab block</option>
+              <option>Classroom block</option>
+            </datalist></div>
+          <div><label>Date *</label><input name="date" id="date" type="date" required></div>
+          <div class="full"><label>Description</label><textarea name="description" rows="3" maxlength="300"
+              placeholder="Colour, brand, marks… (don’t post full ID numbers)"></textarea></div>
+          <div class="full"><label id="photoLbl">Photo (optional, max 3 MB)</label><input name="photo" type="file"
+              accept="image/jpeg,image/png,image/webp"></div>
+          <div class="full"><label>Contact (email or phone) *</label><input name="contact" maxlength="80" required
+              placeholder="Shown only to logged-in users"></div>
+          <div class="full"><button class="btn primary" id="saveBtn" type="submit">Submit report</button> <button
+              class="btn hide" id="cancelEdit" type="button">Cancel edit</button>
+            <p class="note">New reports and edits go live after an admin approves them.</p>
+          </div>
+        </form>
+      </section>
+
+      <section id="account" class="hide">
+        <h2 style="margin-top:0">My profile</h2>
+        <form id="profForm" class="card">
+          <div><label for="pName">Name</label><input id="pName" required maxlength="50"></div>
+          <div><label for="pEmail">Email</label><input id="pEmail" disabled></div>
+          <div><label for="pPhone">Phone</label><input id="pPhone" maxlength="20"></div>
+          <div><label for="pType">I am a</label><select id="pType">
+              <option>Student</option>
+              <option>Staff</option>
+              <option>Public</option>
+            </select></div>
+          <div class="full"><label for="pDept">Department / class</label><input id="pDept" maxlength="60"></div>
+          <div><label for="pCur">Current password (only to change it)</label><input id="pCur" type="password"
+              autocomplete="current-password"></div>
+          <div><label for="pNew">New password</label><input id="pNew" type="password" minlength="6"
+              autocomplete="new-password"></div>
+          <div class="full"><button class="btn primary" type="submit">Save profile</button></div>
+        </form>
+        <h2>My reports</h2>
+        <div class="grid" id="mine"></div>
+      </section>
+
+      <section id="admin" class="hide">
+        <div id="loginBox" class="narrow"><label for="pw">Admin password</label><input id="pw" type="password">
+          <p><button class="btn primary" id="loginBtn">Login</button></p>
+        </div>
+        <div id="adminBox" class="hide">
+          <p><button class="btn" id="logout">Admin logout</button></p>
+          <p id="pend" style="font-weight:600"></p>
+          <div class="grid" id="adminList"></div>
+        </div>
+      </section>
+      <footer>Be kind and stay safe: never share full ID or card numbers, and meet in public places.</footer>
+    </div>
+  </div>
+  <div id="modal" class="modal hide">
+    <div class="sheet" id="sheet"></div>
+  </div>
+
+  <script>
+    const ICONS = { "Phone / Electronics": "📱", "Wallet / Cards": "💳", "Keys": "🔑", "Bag": "🎒", "Books / Stationery": "📚", "ID Card": "🪪", "Clothing / Accessories": "🧥", "Other": "📦" };
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    let uTok = localStorage.getItem('u') || '', aTok = sessionStorage.getItem('a') || '', me = null, mine = [], editId = null, tab = 'browse', fEmailVal = '';
+
+    function flash(t, err) { const m = $('msg'); m.textContent = t; m.className = 'msg' + (err ? ' err' : ''); clearTimeout(flash.t); flash.t = setTimeout(() => m.classList.add('hide'), 4500) }
+    async function api(url, opt = {}) {
+      opt.headers = Object.assign({}, opt.headers, uTok ? { 'x-user-token': uTok } : {}, aTok ? { 'x-admin-token': aTok } : {});
+      const r = await fetch(url, opt), d = await r.json().catch(() => ({}));
+      if (!r.ok) { if (r.status === 401) { if (/admin/i.test(d.error || '')) outAdmin(); else if (uTok && /log in/i.test(d.error || '')) outUser() } throw new Error(d.error || 'Request failed') }
+      return d
+    }
+    const json = (m, b) => ({ method: m, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) });
+    function ago(d) { const n = Math.round((new Date(new Date().toISOString().slice(0, 10)) - new Date(d)) / 864e5); return n <= 0 ? 'Today' : n === 1 ? 'Yesterday' : n < 30 ? n + ' days ago' : d }
+
+    // ---------- login / sign up / forgot ----------
+    const PANES = { login: ['Welcome back', 'Log in to report or find lost items.'], signup: ['Create your account', 'Takes under a minute. Your details are saved to your profile.'], forgot: ['Forgot password?', 'Answer your security question to set a new password.'], admin: ['Admin login', 'For staff who approve reports.'] };
+    function showPane(n) {
+      document.querySelectorAll('.pane').forEach(p => p.classList.toggle('hide', p.id !== 'p-' + n));
+      $('aTitle').textContent = PANES[n][0]; $('aSub').textContent = PANES[n][1];
+      if (n === 'forgot') { $('fF1').classList.remove('hide'); $('fF2').classList.add('hide') }
+    }
+    function gate() { const inApp = !!(uTok || aTok); $('auth').classList.toggle('hide', inApp); $('app').classList.toggle('hide', !inApp); $('app').classList.toggle('adminonly', !uTok && !!aTok) }
+    function who() { $('who').innerHTML = me ? `Hi, <b>${esc(me.name)}</b>` : '' }
+    async function loadMe() { if (!uTok) return; try { me = await api('/api/me'); who() } catch (e) { } }
+    function enter() { gate(); show(!uTok && aTok ? 'admin' : 'browse'); if (/^#item=\d+$/.test(location.hash)) openItem(location.hash.slice(6)).catch(() => { }) }
+    function outUser() { uTok = ''; me = null; localStorage.removeItem('u'); who(); if (!aTok) { gate(); showPane('login') } else enter() }
+    function outAdmin() { aTok = ''; sessionStorage.removeItem('a'); if (!uTok) { gate(); showPane('login') } else if (tab === 'admin') showAdmin() }
+    function logoutAll() { uTok = aTok = ''; me = null; localStorage.removeItem('u'); sessionStorage.removeItem('a'); who(); gate(); showPane('login') }
+    async function loggedIn(token) { uTok = token; localStorage.setItem('u', uTok); await loadMe(); enter() }
+
+    document.addEventListener('change', e => { const s = e.target.dataset && e.target.dataset.show; if (s) s.split(',').forEach(id => $(id).type = e.target.checked ? 'text' : 'password') });
+    $('fLogin').addEventListener('submit', async e => {
+      e.preventDefault();
+      try { await loggedIn((await api('/api/login', json('POST', { email: $('lEmail').value, password: $('lPw').value }))).token); e.target.reset() } catch (err) { flash(err.message, true) }
+    });
+    $('fSign').addEventListener('submit', async e => {
+      e.preventDefault();
+      if ($('sPw').value !== $('sPw2').value) return flash('Passwords do not match', true);
+      try {
+        const t = (await api('/api/register', json('POST', { name: $('sName').value, email: $('sEmail').value, phone: $('sPhone').value, userType: $('sType').value, department: $('sDept').value, password: $('sPw').value, secQ: $('sQ').value, secA: $('sA').value }))).token;
+        e.target.reset(); await loggedIn(t); flash('Welcome! Your details are saved in your profile.')
+      } catch (err) { flash(err.message, true) }
+    });
+    $('fF1').addEventListener('submit', async e => {
+      e.preventDefault();
+      try { fEmailVal = $('fEmail').value; $('fQ').textContent = (await api('/api/forgot/question', json('POST', { email: fEmailVal }))).question; $('fF1').classList.add('hide'); $('fF2').classList.remove('hide') } catch (err) { flash(err.message, true) }
+    });
+    $('fF2').addEventListener('submit', async e => {
+      e.preventDefault();
+      try {
+        const r = await api('/api/forgot/reset', json('POST', { email: fEmailVal, answer: $('fAns').value, newPassword: $('fNew').value }));
+        e.target.reset(); $('lEmail').value = fEmailVal; showPane('login'); flash(r.message)
+      } catch (err) { flash(err.message, true) }
+    });
+    $('fAdm').addEventListener('submit', async e => {
+      e.preventDefault();
+      try { aTok = (await api('/api/admin/login', json('POST', { password: $('aPw').value }))).token; sessionStorage.setItem('a', aTok); e.target.reset(); enter() } catch (err) { flash(err.message, true) }
+    });
+    $('logoutAll').onclick = logoutAll;
+
+    // ---------- cards & details ----------
+    function card(i, mode) {
+      const st = i.status;
+      const act = mode === 'browse' ? `<button class="btn" data-a="open" data-id="${i.id}">View details</button>${st === 'returned' ? '<span class="badge found">Returned ✓</span>' : ''}`
+        : mode === 'mine' ? `<button class="btn" data-a="edit" data-id="${i.id}">Edit</button>${st === 'approved' ? `<button class="btn" data-a="mret" data-id="${i.id}">Mark returned</button>` : ''}<button class="btn" data-a="mdel" data-id="${i.id}">Delete</button>`
+          : `${st === 'pending' ? `<button class="btn primary" data-a="approve" data-id="${i.id}">Approve</button>` : ''}${st === 'approved' ? `<button class="btn" data-a="return" data-id="${i.id}">Mark returned</button>` : ''}<button class="btn" data-a="del" data-id="${i.id}">Delete</button>`;
+      return `<div class="item ${st === 'returned' ? 'done' : ''}">
+   ${i.photo ? `<img src="/uploads/${esc(i.photo)}" alt="${esc(i.title)}" loading="lazy" ${mode === 'browse' ? `data-a="open" data-id="${i.id}"` : ''}>` : ''}
+   <div class="top"><span class="ico">${ICONS[i.category] || '📦'}</span><span>${mode !== 'browse' ? `<span class="badge ${st === 'pending' ? 'pending' : st === 'returned' ? 'found' : ''}">${st}</span> ` : ''}<span class="badge ${i.type}">${i.type}</span></span></div>
+   <h3>${esc(i.title)}</h3><div class="meta">📍 ${esc(i.location)} · 🗓 ${ago(i.date)}</div>
+   ${i.description ? `<p class="desc">${esc(i.description)}</p>` : ''}
+   ${mode === 'admin' ? `<div class="contact">📞 ${esc(i.contact)} · 👤 ${esc(i.poster || 'guest')}</div>` : ''}
+   <div class="actions">${act}</div></div>`
+    }
+
+    async function loadBrowse() {
+      const p = new URLSearchParams({ q: $('q').value, type: $('fType').value, category: $('fCat').value, status: $('fStat').value });
+      const [items, s] = await Promise.all([api('/api/items?' + p), api('/api/stats')]);
+      $('sLost').textContent = s.lost; $('sFound').textContent = s.found; $('sRet').textContent = s.returned;
+      $('list').innerHTML = items.length ? items.map(i => card(i, 'browse')).join('') : '<div class="empty">No items match. Try different filters, or report one.</div>'
+    }
+
+    async function openItem(id) {
+      const i = await api('/api/items/' + id);
+      $('sheet').innerHTML = `${i.photo ? `<img src="/uploads/${esc(i.photo)}" alt="">` : ''}
+   <div class="top"><h2 style="margin:0">${ICONS[i.category] || '📦'} ${esc(i.title)}</h2><span class="badge ${i.type}">${i.type}</span></div>
+   <div class="meta">📍 ${esc(i.location)}<br>🗓 ${esc(i.date)} (${ago(i.date)}) · 🏷 ${esc(i.category)}<br>👤 Posted by ${esc(i.poster || 'a guest')} ${i.status === 'returned' ? '· ✅ Returned' : ''}</div>
+   ${i.description ? `<p class="desc">${esc(i.description)}</p>` : ''}
+   <div class="contact" id="mc">${uTok ? '<button class="btn" id="showC">Show contact</button>' : '🔒 Contact details are shown to logged-in users only'}</div>
+   <div id="mm"></div><div class="actions"><a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(i.title + ' (' + i.type + ') at ' + i.location + ' - ' + location.origin + '/#item=' + i.id)}">Share on WhatsApp</a><button class="btn" id="closeM">Close</button></div>`;
+      $('modal').classList.remove('hide'); history.replaceState(null, '', '#item=' + id);
+      api(`/api/items/${id}/matches`).then(m => { if (m.length) $('mm').innerHTML = '<h3 style="margin:8px 0 0;font-size:.95rem">Possible matches</h3>' + m.map(x => `<div class="match"><span>${ICONS[x.category] || '📦'} ${esc(x.title)} <span class="note">· ${esc(x.location)}</span></span><button class="btn" data-a="open" data-id="${x.id}">View</button></div>`).join('') }).catch(() => { });
+      if ($('showC')) $('showC').onclick = async () => { try { $('mc').textContent = '📞 ' + (await api(`/api/items/${id}/contact`)).contact } catch (e) { flash(e.message, true) } };
+      $('closeM').onclick = closeM
+    }
+    function closeM() { $('modal').classList.add('hide'); if (location.hash) history.replaceState(null, '', location.pathname) }
+    $('modal').addEventListener('click', e => { if (e.target === $('modal')) closeM() });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeM() });
+
+    function show(v) {
+      tab = v; document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.dataset.v === v));
+      ['browse', 'report', 'account', 'admin'].forEach(s => $(s).classList.toggle('hide', s !== v)); $('modal').classList.add('hide'); window.scrollTo(0, 0);
+      if (v === 'browse') loadBrowse().catch(e => flash(e.message, true));
+      if (v === 'report') renderReport(); if (v === 'account') renderAccount(); if (v === 'admin') showAdmin()
+    }
+
+    // ---------- profile ----------
+    async function renderAccount() {
+      await loadMe(); if (!me) return;
+      $('pName').value = me.name; $('pEmail').value = me.email; $('pPhone').value = me.phone || ''; $('pType').value = me.user_type || 'Student'; $('pDept').value = me.department || '';
+      mine = await api('/api/my/items');
+      $('mine').innerHTML = mine.length ? mine.map(i => card(i, 'mine')).join('') : '<div class="empty">You haven’t reported anything yet.</div>'
+    }
+    $('profForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      try {
+        const r = await api('/api/me', json('PUT', { name: $('pName').value, phone: $('pPhone').value, userType: $('pType').value, department: $('pDept').value, currentPassword: $('pCur').value, newPassword: $('pNew').value }));
+        $('pCur').value = $('pNew').value = ''; flash(r.message); await loadMe()
+      } catch (err) { flash(err.message, true) }
+    });
+
+    // ---------- report / edit ----------
+    function renderReport() { if (me && !editId && !$('form').contact.value) $('form').contact.value = me.phone || me.email }
+    function resetForm() {
+      editId = null; $('form').reset(); $('date').value = new Date().toISOString().slice(0, 10);
+      $('fTitle').textContent = 'Report an item'; $('saveBtn').textContent = 'Submit report'; $('cancelEdit').classList.add('hide'); $('photoLbl').textContent = 'Photo (optional, max 3 MB)'
+    }
+    $('cancelEdit').onclick = () => { resetForm(); show('account') };
+    function startEdit(id) {
+      const i = mine.find(x => x.id == id); if (!i) return; const f = $('form'); editId = id;
+      f.elements.type.value = i.type; f.title.value = i.title; f.category.value = i.category; f.location.value = i.location;
+      f.date.value = i.date; f.description.value = i.description; f.contact.value = i.contact;
+      $('fTitle').textContent = 'Edit your report'; $('saveBtn').textContent = 'Save changes'; $('cancelEdit').classList.remove('hide');
+      $('photoLbl').textContent = i.photo ? 'Replace photo (leave empty to keep the current one)' : 'Add a photo (optional)'; show('report')
+    }
+    $('form').addEventListener('submit', async e => {
+      e.preventDefault();
+      try {
+        const r = await api(editId ? '/api/my/items/' + editId : '/api/items', { method: editId ? 'PUT' : 'POST', body: new FormData(e.target) });
+        resetForm(); flash(r.message); show('account')
+      } catch (err) { flash(err.message, true) }
+    });
+
+    // ---------- admin ----------
+    async function loadAdmin() {
+      const items = await api('/api/admin/items'); const np = items.filter(i => i.status === 'pending').length;
+      $('pend').textContent = np ? np + ' report(s) waiting for approval' : 'No reports waiting for approval';
+      $('adminList').innerHTML = items.length ? items.map(i => card(i, 'admin')).join('') : '<div class="empty">No reports yet.</div>'
+    }
+    function showAdmin() { $('loginBox').classList.toggle('hide', !!aTok); $('adminBox').classList.toggle('hide', !aTok); if (aTok) loadAdmin().catch(() => { }) }
+    $('loginBtn').onclick = async () => { try { aTok = (await api('/api/admin/login', json('POST', { password: $('pw').value }))).token; sessionStorage.setItem('a', aTok); $('pw').value = ''; showAdmin() } catch (e) { flash(e.message, true) } };
+    $('pw').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click() });
+    $('logout').onclick = outAdmin;
+
+    // ---------- clicks ----------
+    document.addEventListener('click', async e => {
+      const pn = e.target.closest('[data-pane]'); if (pn) return showPane(pn.dataset.pane);
+      const r = e.target.closest('[data-report]'); if (r) { show('report'); $('form').elements.type.value = r.dataset.report; return }
+      const t = e.target.closest('.tab'); if (t) return show(t.dataset.v);
+      const b = e.target.closest('[data-a]'); if (!b) return; const id = b.dataset.id, a = b.dataset.a;
+      try {
+        if (a === 'open') await openItem(id);
+        if (a === 'edit') startEdit(id);
+        if (a === 'mret') { await api(`/api/my/items/${id}/return`, { method: 'POST' }); renderAccount() }
+        if (a === 'mdel' && confirm('Delete this report?')) { await api('/api/my/items/' + id, { method: 'DELETE' }); renderAccount() }
+        if (a === 'approve' || a === 'return') { await api(`/api/admin/items/${id}/${a}`, { method: 'POST' }); loadAdmin() }
+        if (a === 'del' && confirm('Delete this report permanently?')) { await api('/api/admin/items/' + id, { method: 'DELETE' }); loadAdmin() }
+      } catch (err) { flash(err.message, true) }
+    });
+    ['q', 'fType', 'fCat', 'fStat'].forEach(id => $(id).addEventListener('input', () => loadBrowse().catch(e => flash(e.message, true))));
+
+    // ---------- start ----------
+    (async () => {
+      const [cats, qs] = await Promise.all([api('/api/categories'), api('/api/security-questions')]);
+      $('fCat').innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option>${esc(c)}</option>`).join('');
+      $('cat').innerHTML = cats.map(c => `<option>${esc(c)}</option>`).join('');
+      $('sQ').innerHTML = qs.map(q => `<option>${esc(q)}</option>`).join('');
+      $('date').value = new Date().toISOString().slice(0, 10); $('date').max = $('date').value;
+      if (uTok) { await loadMe(); if (!me) uTok = '' }
+      if (uTok || aTok) enter(); else { gate(); showPane('login') }
+    })();
+  </script>
+</body>
+
+</html>
