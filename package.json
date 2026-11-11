@@ -1,21 +1,14 @@
 {
-  "name": "lost-and-found",
+  "name": "lost-and-found-portal",
   "version": "1.0.0",
-  "description": "Lost and Found portal",
-  "main": "index.js",
+  "description": "Lost and Found Portal",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "express": "^5.3.0",
-    "multer": "^2.5.0"
+    "express": "^4.21.2",
+    "multer": "^2.0.0"
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> e95a1d5b7278d588c4f41dc76094a8e246cf4510
