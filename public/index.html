@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lost &amp; Found Portal</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#1c2030;--muted:#667;--line:#e3e6ef;--brand:#4f46e5;--brandtxt:#fff;--lost:#dc2626;--lostbg:#fee2e2;--found:#059669;--foundbg:#d1fae5;--warn:#b45309;--warnbg:#fef3c7;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#12141c;--card:#1c1f2b;--text:#eceef6;--muted:#a0a6bd;--line:#2c3040;--brand:#818cf8;--brandtxt:#12141c;--lost:#f87171;--lostbg:#3b1d1f;--found:#34d399;--foundbg:#12332a;--warn:#fbbf24;--warnbg:#3a2e12;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:8px 0 0}.sub{color:var(--muted);font-size:.9rem;margin:2px 0 16px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+button,input,select,textarea{font:inherit;color:var(--text)}
+.tab,.btn{border:1px solid var(--line);background:var(--card);padding:9px 16px;border-radius:10px;cursor:pointer}
+.tab.on,.btn.primary{background:var(--brand);color:var(--brandtxt);border-color:var(--brand);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stat b{display:block;font-size:1.4rem}.stat span{color:var(--muted);font-size:.8rem}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.item.done{opacity:.6}
+.item img{width:100%;height:150px;object-fit:cover;border-radius:10px}
+.top{display:flex;justify-content:space-between;align-items:center}.ico{font-size:1.8rem}
+.badge{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:99px;text-transform:uppercase}
+.badge.lost{background:var(--lostbg);color:var(--lost)}.badge.found{background:var(--foundbg);color:var(--found)}
+.badge.pending{background:var(--warnbg);color:var(--warn)}
+.item h3{margin:0;font-size:1.05rem}.meta{color:var(--muted);font-size:.85rem}.desc{font-size:.9rem;margin:2px 0}
+.actions{display:flex;gap:6px;margin-top:auto;padding-top:8px;flex-wrap:wrap}
+.actions .btn{padding:6px 11px;font-size:.85rem}
+.contact{font-size:.88rem;background:var(--bg);border-radius:8px;padding:8px;word-break:break-word}
+form.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}label{font-size:.85rem;font-weight:600;display:block;margin-bottom:4px}
+.seg{display:flex;gap:8px}
+.seg label{flex:1;margin:0;border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;cursor:pointer}
+.seg input{display:none}.seg label:has(input:checked){border-color:var(--brand);background:var(--bg);color:var(--brand)}
+.empty{text-align:center;color:var(--muted);padding:40px 0;grid-column:1/-1}
+.hide{display:none}.note{font-size:.8rem;color:var(--muted)}
+.msg{padding:10px;border-radius:10px;margin-bottom:12px;background:var(--foundbg);color:var(--found)}
+.msg.err{background:var(--lostbg);color:var(--lost)}
+.login{max-width:340px;display:grid;gap:10px}
+@media(max-width:640px){.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}form.card{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🔎 Lost &amp; Found Portal</h1>
+<p class="sub">Report and find lost items on campus and in public places.</p>
+<div class="tabs">
+  <button class="tab on" data-v="browse">Browse items</button>
+  <button class="tab" data-v="report">+ Report an item</button>
+  <button class="tab" data-v="admin">🔐 Admin</button>
+</div>
+<div id="msg" class="msg hide"></div>
+
+<section id="browse">
+  <div class="stats">
+    <div class="stat"><b id="sLost">0</b><span>Lost</span></div>
+    <div class="stat"><b id="sFound">0</b><span>Found</span></div>
+    <div class="stat"><b id="sRet">0</b><span>Returned</span></div>
+  </div>
+  <div class="filters">
+    <input id="q" placeholder="Search item, place, description…">
+    <select id="fType"><option value="">All types</option><option value="lost">Lost</option><option value="found">Found</option></select>
+    <select id="fCat"></select>
+    <select id="fStat"><option value="open">Open only</option><option value="all">All</option><option value="done">Returned</option></select>
+  </div>
+  <div class="grid" id="list"></div>
+</section>
+
+<section id="report" class="hide">
+  <form id="form" class="card">
+    <div class="full"><label>I have…</label>
+      <div class="seg">
+        <label><input type="radio" name="type" value="lost" checked>😟 Lost something</label>
+        <label><input type="radio" name="type" value="found">🙌 Found something</label>
+      </div></div>
+    <div><label>Item name *</label><input name="title" required maxlength="60" placeholder="e.g. Black backpack"></div>
+    <div><label>Category *</label><select name="category" id="cat" required></select></div>
+    <div><label>Where? *</label><input name="location" required maxlength="80" placeholder="e.g. Library, 2nd floor"></div>
+    <div><label>Date *</label><input name="date" id="date" type="date" required></div>
+    <div class="full"><label>Description</label><textarea name="description" rows="3" maxlength="300" placeholder="Colour, brand, marks… (don’t post full ID numbers)"></textarea></div>
+    <div class="full"><label>Photo (optional, max 3 MB)</label><input name="photo" type="file" accept="image/jpeg,image/png,image/webp"></div>
+    <div class="full"><label>Your contact (email or phone) *</label><input name="contact" required maxlength="80" placeholder="Shown only when someone taps “Show contact”"></div>
+    <div class="full"><button class="btn primary" type="submit">Submit report</button>
+      <p class="note">Reports go live after an admin approves them.</p></div>
+  </form>
+</section>
+
+<section id="admin" class="hide">
+  <div id="loginBox" class="login">
+    <label>Admin password</label>
+    <input id="pw" type="password" placeholder="Password">
+    <button class="btn primary" id="loginBtn">Login</button>
+  </div>
+  <div id="adminBox" class="hide">
+    <p><button class="btn" id="logout">Logout</button></p>
+    <div class="grid" id="adminList"></div>
+  </div>
+</section>
+</div>
+
+<script>
+const ICONS = {"Phone / Electronics":"📱","Wallet / Cards":"💳","Keys":"🔑","Bag":"🎒","Books / Stationery":"📚","ID Card":"🪪","Clothing / Accessories":"🧥","Other":"📦"};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let token = sessionStorage.getItem('admin') || '';
+
+function flash(text, err) {
+  const m = $('msg'); m.textContent = text; m.className = 'msg' + (err ? ' err' : '');
+  setTimeout(() => m.classList.add('hide'), 4000);
+}
+async function api(url, opt = {}) {
+  opt.headers = Object.assign({}, opt.headers, token ? {'x-admin-token': token} : {});
+  const r = await fetch(url, opt), data = await r.json().catch(() => ({}));
+  if (!r.ok) { if (r.status === 401 && token) logout(); throw new Error(data.error || 'Request failed'); }
+  return data;
+}
+
+function card(i, admin) {
+  return `<div class="item ${i.status === 'returned' ? 'done' : ''}">
+    ${i.photo ? `<img src="/uploads/${esc(i.photo)}" alt="${esc(i.title)}" loading="lazy">` : ''}
+    <div class="top"><span class="ico">${ICONS[i.category] || '📦'}</span>
+      <span>${admin ? `<span class="badge ${i.status === 'pending' ? 'pending' : i.status === 'returned' ? 'found' : ''}">${i.status}</span> ` : ''}<span class="badge ${i.type}">${i.type}</span></span></div>
+    <h3>${esc(i.title)}</h3>
+    <div class="meta">📍 ${esc(i.location)} · 🗓 ${esc(i.date)}</div>
+    ${i.description ? `<p class="desc">${esc(i.description)}</p>` : ''}
+    ${admin ? `<div class="contact">📞 ${esc(i.contact)}</div>` : `<div class="contact hide" id="c${i.id}"></div>`}
+    <div class="actions">${admin ? `
+      ${i.status === 'pending' ? `<button class="btn primary" data-a="approve" data-id="${i.id}">Approve</button>` : ''}
+      ${i.status === 'approved' ? `<button class="btn" data-a="return" data-id="${i.id}">Mark returned</button>` : ''}
+      <button class="btn" data-a="del" data-id="${i.id}">Delete</button>` :
+      `<button class="btn" data-a="contact" data-id="${i.id}">Show contact</button>
+       ${i.status === 'returned' ? '<span class="badge found">Returned ✓</span>' : ''}`}
+    </div></div>`;
+}
+
+async function loadBrowse() {
+  const p = new URLSearchParams({q: $('q').value, type: $('fType').value, category: $('fCat').value, status: $('fStat').value});
+  const [items, s] = await Promise.all([api('/api/items?' + p), api('/api/stats')]);
+  $('sLost').textContent = s.lost; $('sFound').textContent = s.found; $('sRet').textContent = s.returned;
+  $('list').innerHTML = items.length ? items.map(i => card(i, false)).join('') : '<div class="empty">No items match. Try different filters, or report one.</div>';
+}
+async function loadAdmin() {
+  const items = await api('/api/admin/items');
+  $('adminList').innerHTML = items.length ? items.map(i => card(i, true)).join('') : '<div class="empty">No reports yet.</div>';
+}
+function showAdmin() { $('loginBox').classList.toggle('hide', !!token); $('adminBox').classList.toggle('hide', !token); if (token) loadAdmin().catch(() => {}); }
+function logout() { token = ''; sessionStorage.removeItem('admin'); showAdmin(); }
+
+document.addEventListener('click', async (e) => {
+  const t = e.target.closest('.tab');
+  if (t) {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
+    ['browse', 'report', 'admin'].forEach(v => $(v).classList.toggle('hide', v !== t.dataset.v));
+    if (t.dataset.v === 'browse') loadBrowse(); if (t.dataset.v === 'admin') showAdmin();
+  }
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const id = b.dataset.id, a = b.dataset.a;
+  try {
+    if (a === 'contact') { const c = $('c' + id); if (!c.textContent) c.textContent = '📞 ' + (await api(`/api/items/${id}/contact`)).contact; c.classList.toggle('hide'); }
+    if (a === 'approve' || a === 'return') { await api(`/api/admin/items/${id}/${a}`, {method: 'POST'}); loadAdmin(); }
+    if (a === 'del' && confirm('Delete this report permanently?')) { await api(`/api/admin/items/${id}`, {method: 'DELETE'}); loadAdmin(); }
+  } catch (err) { flash(err.message, true); }
+});
+
+['q', 'fType', 'fCat', 'fStat'].forEach(id => $(id).addEventListener('input', () => loadBrowse().catch(e => flash(e.message, true))));
+
+$('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    const r = await api('/api/items', {method: 'POST', body: new FormData(e.target)});
+    e.target.reset(); $('date').value = new Date().toISOString().slice(0, 10);
+    flash(r.message); document.querySelector('.tab[data-v=browse]').click();
+  } catch (err) { flash(err.message, true); }
+});
+
+$('loginBtn').addEventListener('click', async () => {
+  try {
+    token = (await api('/api/admin/login', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({password: $('pw').value})})).token;
+    sessionStorage.setItem('admin', token); $('pw').value = ''; showAdmin();
+  } catch (err) { flash(err.message, true); }
+});
+$('pw').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+$('logout').addEventListener('click', logout);
+
+(async () => {
+  const cats = await api('/api/categories');
+  $('fCat').innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option>${esc(c)}</option>`).join('');
+  $('cat').innerHTML = cats.map(c => `<option>${esc(c)}</option>`).join('');
+  $('date').value = new Date().toISOString().slice(0, 10); $('date').max = $('date').value;
+  loadBrowse().catch(e => flash(e.message, true));
+})();
+</script>
+</body>
+</html>
