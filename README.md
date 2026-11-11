@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Lost & Found Portal (Node.js + Express + SQLite)
 
 ## Run
@@ -17,3 +18,6 @@ Change it before sharing:
 - New reports are saved as "pending" and appear publicly only after admin approval.
 - Contact details are never in the public list; they load only when "Show contact" is tapped.
 - Photos are saved in `uploads/`, data in `lostfound.db` (both created automatically).
+=======
+# lost-and-found-portal
+>>>>>>> 7230f0c2b6ab15a6f4a0e441af04f1cb54f147d9
